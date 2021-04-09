@@ -37,13 +37,14 @@ display = Adafruit_SSD1675B(
     rst_pin=rst,
     busy_pin=busy,
 )
-display.rotation = 1
+display.rotation = 0
 
 # Create blank image for drawing.
 # Make sure to create image with mode '1' for 1-bit color.
 width = display.width
 height = display.height
 image = Image.new("RGB", (width, height))
+splashimage = Image.new("RGB", (width, height))
 
 WHITE = (0xFF, 0xFF, 0xFF)
 BLACK = (0x00, 0x00, 0x00)
@@ -55,8 +56,10 @@ display.display()
 
 # Get drawing object to draw on image.
 draw = ImageDraw.Draw(image)
+splash = ImageDraw.Draw(splashimage)
 # empty it
 draw.rectangle((0, 0, width, height), fill=WHITE)
+splash.rectangle((0, 0, width, height), fill=BLACK)
 print("drawing box")
 
 # Draw an outline box
@@ -100,8 +103,16 @@ font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
 # Write two lines of text.
 draw.text((x, top), "Goodbye", font=font, fill=BLACK)
 draw.text((x, top + 20), "World!", font=font, fill=BLACK)
-print("entering the loops")
 
+splash.line((x, bottom, x + shape_width, top), fill=WHITE, width=3)
+#splash.line((x, top, x + shape_width, bottom), fill=WHITE, width=3)
+x += shape_width + padding
+splash.text((x, top+20), "Push!!", font=font, fill=WHITE)
+splash.text((x, top + 40), "ME!!!!", font=font, fill=WHITE)
+
+print("entering the loops")
+display.image(splashimage)
+display.display()
 while True:
     if not switch1.value:
         print("Switch 1")
