@@ -1,5 +1,12 @@
-# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
+from netifaces import interfaces, ifaddresses, AF_INET
+
+def ip4_addresses():
+    ip_list = []
+    for interface in interfaces():
+        for link in ifaddresses(interface)[AF_INET]:
+            ip_list.append(link['addr'])
+    return ip_list
+
 
 import time
 import busio
@@ -37,7 +44,7 @@ display = Adafruit_SSD1675B(
     rst_pin=rst,
     busy_pin=busy,
 )
-display.rotation = 0
+display.rotation = 1
 
 # Create blank image for drawing.
 # Make sure to create image with mode '1' for 1-bit color.
@@ -72,25 +79,6 @@ top = padding
 bottom = height - padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = padding
-"""
-# Draw an ellipse.
-draw.ellipse((x, top, x + shape_width, bottom), outline=WHITE, fill=BLACK)
-x += shape_width + padding
-# Draw a rectangle.
-draw.rectangle((x, top, x + shape_width, bottom), outline=BLACK, fill=WHITE)
-x += shape_width + padding
-# Draw a triangle.
-draw.polygon(
-    [(x, bottom), (x + shape_width / 2, top), (x + shape_width, bottom)],
-    outline=BLACK,
-    fill=WHITE,
-)
-x += shape_width + padding
-# Draw an X.
-draw.line((x, bottom, x + shape_width, top), fill=BLACK)
-draw.line((x, top, x + shape_width, bottom), fill=BLACK)
-x += shape_width + padding
-"""
 
 # Load default font.
 font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
@@ -103,12 +91,14 @@ font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
 # Write two lines of text.
 draw.text((x, top), "Goodbye", font=font, fill=BLACK)
 draw.text((x, top + 20), "World!", font=font, fill=BLACK)
+draw.text((x, top + 40), ip4_addresses()[1], font=font, fill=BLACK)
 
-splash.line((x, bottom, x + shape_width, top), fill=WHITE, width=3)
-#splash.line((x, top, x + shape_width, bottom), fill=WHITE, width=3)
+#splash.line((x, bottom, x + 60 + shape_width, top), fill=WHITE, width=3)
+splash.line((x, top+shape_width, x + shape_width, bottom), fill=WHITE, width=3)
 x += shape_width + padding
-splash.text((x, top+20), "Push!!", font=font, fill=WHITE)
-splash.text((x, top + 40), "ME!!!!", font=font, fill=WHITE)
+splash.text((x, top), "Push!!", font=font, fill=WHITE)
+splash.text((x, top + 20), "ME!!!!", font=font, fill=WHITE)
+splash.text((x, top + 40), ip4_addresses()[1], font=font, fill=WHITE)
 
 print("entering the loops")
 display.image(splashimage)
@@ -119,11 +109,12 @@ while True:
         display.image(image)
         display.display()
         while not switch1.value:
-            time.sleep(0.001)
+            time.sleep(0.01)
     if not switch2.value:
         print("Switch 2")
-        display.fill(Adafruit_EPD.WHITE)
+        display.image(splashimage)
+        #display.fill(Adafruit_EPD.WHITE)
         display.display()
         while not switch2.value:
-            time.sleep(0.001)
-    time.sleep(0.001)
+            time.sleep(0.01)
+    time.sleep(0.01)
