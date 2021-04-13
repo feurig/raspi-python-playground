@@ -1,3 +1,8 @@
+#---------------------------------------------------------------epaperisslow.py
+# playing around with 2.13" HD mono pi hat.
+#
+# screen drawing takes 9-10 seconds per update.
+
 from netifaces import interfaces, ifaddresses, AF_INET
 
 def ip4_addresses():
