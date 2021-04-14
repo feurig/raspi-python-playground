@@ -31,45 +31,7 @@ from adafruit_epd.ssd1675b import Adafruit_SSD1675B  # pylint: disable=unused-im
 #from adafruit_epd.ssd1675 import Adafruit_SSD1675  # pylint: disable=unused-import
 import math
 import random
-def arrowedLine(draw, ptB, ptA, width=1, fill=(0,255,0)):
-    """Draw line from ptA to ptB with arrowhead at ptB"""
-    # Get drawing context
-    #sdraw = ImageDraw.Draw(im)
-    # Draw the line without arrows
-    draw.line((ptA,ptB), width=width, fill=fill)
 
-    # Now work out the arrowhead
-    # = it will be a triangle with one vertex at ptB
-    # - it will start at 95% of the length of the line
-    # - it will extend 8 pixels either side of the line
-    x0, y0 = ptA
-    x1, y1 = ptB
-    # Now we can work out the x,y coordinates of the bottom of the arrowhead triangle
-    xb = 0.95*(x1-x0)+x0
-    yb = 0.95*(y1-y0)+y0
-
-    # Work out the other two vertices of the triangle
-    # Check if line is vertical
-    if x0==x1:
-       vtx0 = (xb-5, yb)
-       vtx1 = (xb+5, yb)
-    # Check if line is horizontal
-    elif y0==y1:
-       vtx0 = (xb, yb+5)
-       vtx1 = (xb, yb-5)
-    else:
-       alpha = math.atan2(y1-y0,x1-x0)-90*math.pi/180
-       a = 8*math.cos(alpha)
-       b = 8*math.sin(alpha)
-       vtx0 = (xb+a, yb+b)
-       vtx1 = (xb-a, yb-b)
-
-    #draw.point((xb,yb), fill=(255,0,0))    # DEBUG: draw point of base in red - comment out draw.polygon() below if using this line
-    #im.save('DEBUG-base.png')              # DEBUG: save
-
-    # Now draw the arrowhead triangle
-    draw.polygon([vtx0, vtx1, ptB], fill=fill)
-    return draw
 
 # create two buttons
 switch1 = DigitalInOut(board.D6)
@@ -132,16 +94,10 @@ bottom = height - padding
 x = padding
 
 # Load default font.
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 60)
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 72)
 
-#draw.text((x, top), "Goodbye", font=font, fill=BLACK)
-#draw.text((x, top + 40), "World!", font=font, fill=BLACK)
-draw.text((x, top + 40), current_time, font=font, fill=BLACK)
-#shape_width *=2
-#splash=arrowedLine(splash, (x, top+(shape_width/2)), (x + (shape_width*2), bottom), width=3, fill=WHITE)
-#x+=shape_width
-#splash.text((x, top), "Push ME!!!!", font=font, fill=WHITE)
-splash.text((x, top + 40), current_time, font=font, fill=WHITE)
+draw.text((x, top + 30), current_time, font=font, fill=BLACK)
+splash.text((x, top + 30), current_time, font=font, fill=WHITE)
 
 print("entering the loops")
 
@@ -158,12 +114,16 @@ while True:
     if not switch1.value:
         print("Switch 1")
         image2display=image
+        display.image(image2display)
+        display.display()
         while not switch1.value:
             time.sleep(0.01)
             
     if not switch2.value:
         print("Switch 2")
         image2display=splashimage
+        display.image(image2display)
+        display.display()
         while not switch2.value:
             time.sleep(0.01)
             
@@ -175,8 +135,8 @@ while True:
         draw.rectangle((0, 0, width, height), fill=WHITE)
         splash.rectangle((0, 0, width, height), fill=BLACK)
         draw.rectangle((1, 1, width - 2, height - 2), outline=BLACK, fill=WHITE)
-        draw.text((padding,top+40),current_time,font=font, fill=BLACK)
-        splash.text((x,top+40),current_time, font=font, fill=WHITE)
+        draw.text((padding,top+30),current_time,font=font, fill=BLACK)
+        splash.text((x,top+30),current_time, font=font, fill=WHITE)
         display.image(image2display)
         display.display()
         old_ticks=time.monotonic()
