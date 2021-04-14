@@ -3,21 +3,12 @@
 #
 # screen drawing takes 9-10 seconds per update.
 
-from netifaces import interfaces, ifaddresses, AF_INET
-
-def ip4_addresses():
-    ip_list = []
-    for interface in interfaces():
-        for link in ifaddresses(interface)[AF_INET]:
-            ip_list.append(link['addr'])
-    return ip_list
 
 from datetime import datetime
 
-now = datetime.now()
-
-current_time = now.strftime("%H:%M  ")
-
+def TimeString ():
+    return datetime.now().strftime("%H:%M")
+    
 import time
 import busio
 import board
@@ -27,8 +18,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from adafruit_epd.epd import Adafruit_EPD
-from adafruit_epd.ssd1675b import Adafruit_SSD1675B  # pylint: disable=unused-import
-#from adafruit_epd.ssd1675 import Adafruit_SSD1675  # pylint: disable=unused-import
+from adafruit_epd.ssd1675b import Adafruit_SSD1675B  # pylint: disable=unused-import#from adafruit_epd.ssd1675 import Adafruit_SSD1675  # pylint: disable=unused-import
 import math
 import random
 
@@ -41,7 +31,7 @@ switch2.direction = Direction.INPUT
 
 # create the spi device and pins we will need
 spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-ecs = DigitalInOut(board.CE0)
+ecs = DigitalInOut(board.CE0) ## check back on this
 dc = DigitalInOut(board.D22)
 rst = DigitalInOut(board.D27)
 busy = DigitalInOut(board.D17)
@@ -94,15 +84,17 @@ bottom = height - padding
 x = padding
 
 # Load default font.
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 72)
 
-draw.text((x, top + 30), current_time, font=font, fill=BLACK)
-splash.text((x, top + 30), current_time, font=font, fill=WHITE)
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 80)
+
+text_origin=(7,top+15)
+draw.text(text_origin, TimeString(), font=font, fill=BLACK)
+splash.text(text_origin, TimeString(), font=font, fill=WHITE)
 
 print("entering the loops")
 
-display.image(splashimage)
-display.display()
+#display.image(splashimage)
+#display.display()
 
 old_ticks = time.monotonic() - 50.0
 image2display=splashimage
@@ -130,13 +122,13 @@ while True:
     # print( ticks - old_ticks)
     
     if(( ticks  - old_ticks) >= 50.0):
-        current_time=datetime.now().strftime("%H:%M  ")
-        print("updating "+current_time)
+        #current_time=datetime.now().strftime("%H:%M  ")
+        print("updating "+TimeString())
         draw.rectangle((0, 0, width, height), fill=WHITE)
         splash.rectangle((0, 0, width, height), fill=BLACK)
         draw.rectangle((1, 1, width - 2, height - 2), outline=BLACK, fill=WHITE)
-        draw.text((padding,top+30),current_time,font=font, fill=BLACK)
-        splash.text((x,top+30),current_time, font=font, fill=WHITE)
+        draw.text(text_origin,TimeString(),font=font, fill=BLACK)
+        splash.text(text_origin,TimeString(), font=font, fill=WHITE)
         display.image(image2display)
         display.display()
         old_ticks=time.monotonic()
