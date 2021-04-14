@@ -12,6 +12,11 @@ def ip4_addresses():
             ip_list.append(link['addr'])
     return ip_list
 
+from datetime import datetime
+
+now = datetime.now()
+
+current_time = now.strftime("%H:%M  ")
 
 import time
 import busio
@@ -127,41 +132,52 @@ bottom = height - padding
 x = padding
 
 # Load default font.
-font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 20)
+font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 60)
 
-# Alternatively load a TTF font.  Make sure the .ttf font
-# file is in the same directory as the python script!
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
-# font = ImageFont.truetype('Minecraftia.ttf', 8)
-
-# Write two lines of text.
-draw.text((x, top), "Goodbye", font=font, fill=BLACK)
-draw.text((x, top + 20), "World!", font=font, fill=BLACK)
-draw.text((x, top + 40), ip4_addresses()[1], font=font, fill=BLACK)
-
-#splash.line((x, bottom, x + 60 + shape_width, top), fill=WHITE, width=3)
-#splash.line((x, top+shape_width, x + shape_width, bottom), fill=WHITE, width=3) x += shape_width + padding
-shape_width *=2
-splash=arrowedLine(splash, (x, top+(shape_width/2)), (x + (shape_width*2), bottom), width=3, fill=WHITE)
-x+=shape_width
-splash.text((x, top), "Push ME!!!!", font=font, fill=WHITE)
-splash.text((x, top + 20), ip4_addresses()[1], font=font, fill=WHITE)
+#draw.text((x, top), "Goodbye", font=font, fill=BLACK)
+#draw.text((x, top + 40), "World!", font=font, fill=BLACK)
+draw.text((x, top + 40), current_time, font=font, fill=BLACK)
+#shape_width *=2
+#splash=arrowedLine(splash, (x, top+(shape_width/2)), (x + (shape_width*2), bottom), width=3, fill=WHITE)
+#x+=shape_width
+#splash.text((x, top), "Push ME!!!!", font=font, fill=WHITE)
+splash.text((x, top + 40), current_time, font=font, fill=WHITE)
 
 print("entering the loops")
+
 display.image(splashimage)
 display.display()
+
+old_ticks = time.monotonic() - 50.0
+image2display=splashimage
+
 while True:
+    
+    ticks = time.monotonic()
+    
     if not switch1.value:
         print("Switch 1")
-        display.image(image)
-        display.display()
+        image2display=image
         while not switch1.value:
             time.sleep(0.01)
+            
     if not switch2.value:
         print("Switch 2")
-        display.image(splashimage)
-        #display.fill(Adafruit_EPD.WHITE)
-        display.display()
+        image2display=splashimage
         while not switch2.value:
             time.sleep(0.01)
-    time.sleep(0.01)
+            
+    # print( ticks - old_ticks)
+    
+    if(( ticks  - old_ticks) >= 50.0):
+        current_time=datetime.now().strftime("%H:%M  ")
+        print("updating "+current_time)
+        draw.rectangle((0, 0, width, height), fill=WHITE)
+        splash.rectangle((0, 0, width, height), fill=BLACK)
+        draw.rectangle((1, 1, width - 2, height - 2), outline=BLACK, fill=WHITE)
+        draw.text((padding,top+40),current_time,font=font, fill=BLACK)
+        splash.text((x,top+40),current_time, font=font, fill=WHITE)
+        display.image(image2display)
+        display.display()
+        old_ticks=time.monotonic()
+        
